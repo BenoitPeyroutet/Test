@@ -1,0 +1,54 @@
+#include <iostream>
+#include <curl/curl.h>
+#include <string>
+#include <regex>
+using namespace std;
+
+// Fonction pour extraire un nombre décimal à partir d'une chaîne de caractères
+double extractNumber(string str) {
+    regex reg("\\d+\\.?\\d*");
+    smatch match;
+    regex_search(str, match, reg);
+    return stod(match[0]);
+}
+
+int main()
+{
+    CURL *curl;
+    CURLcode res;
+    string url = "https://www.societe.com/societe/soc-industrielle-bois-conditionnes-339725624.html"; // URL de la page web contenant les comptes financiers
+    string html_content;
+    double chiffre_affaires, resultat_net, actif_total, passif_total, chiffre_affaires_annee_precedente;
+
+    // Initialiser CURL et récupérer le contenu HTML de la page web
+    curl = curl_easy_init();
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &html_content);
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+    }
+
+    // Extraire les données financières de la page HTML à l'aide d'expressions régulières
+    chiffre_affaires = extractNumber(regex_replace(html_content, regex(".+Chiffre d'affaires : ([^<]+).+"), "$1"));
+    resultat_net = extractNumber(regex_replace(html_content, regex(".+Résultat net : ([^<]+).+"), "$1"));
+    actif_total = extractNumber(regex_replace(html_content, regex(".+Actif total : ([^<]+).+"), "$1"));
+    passif_total = extractNumber(regex_replace(html_content, regex(".+Passif total : ([^<]+).+"), "$1"));
+    chiffre_affaires_annee_precedente = extractNumber(regex_replace(html_content, regex(".+Chiffre d'affaires année précédente : ([^<]+).+"), "$1"));
+
+    // Calcul des ratios d'analyse financière
+    double ratio_liquidite = (actif_total - passif_total) / passif_total;
+    double ratio_endettement = passif_total / actif_total;
+    double ratio_rentabilite = resultat_net / chiffre_affaires;
+    double ratio_croissance = (chiffre_affaires - chiffre_affaires_annee_precedente) / chiffre_affaires_annee_precedente;
+
+    // Affichage des ratios d'analyse financière
+    cout << "Ratio de liquidité : " << ratio_liquidite << endl;
+    cout << "Ratio d'endettement : " << ratio_endettement << endl;
+    cout << "Ratio de rentabilité : " << ratio_rentabilite << endl;
+    cout << "Ratio de croissance : " << ratio_croissance << endl;
+
+    return 0;
+}
