@@ -1,0 +1,37 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main()
+{
+    ifstream myfile("file:///C:/Users/benph/Downloads/SIBC%20-%20Comptes%20sociaux%202021.pdf"); // Ouvrir le fichier contenant les comptes financiers
+    string line;
+    double chiffre_affaires, resultat_net, actif_total, passif_total;
+
+    // Lire les données financières à partir du fichier
+    getline(myfile, line);
+    chiffre_affaires = stod(line.substr(line.find(":")+1));
+    getline(myfile, line);
+    resultat_net = stod(line.substr(line.find(":")+1));
+    getline(myfile, line);
+    actif_total = stod(line.substr(line.find(":")+1));
+    getline(myfile, line);
+    passif_total = stod(line.substr(line.find(":")+1));
+
+    // Calcul des ratios d'analyse financière
+    double ratio_liquidite = (actif_total - passif_total) / passif_total;
+    double ratio_endettement = passif_total / actif_total;
+    double ratio_rentabilite = resultat_net / chiffre_affaires;
+    double ratio_croissance = (chiffre_affaires - chiffre_affaires_annee_precedente) / chiffre_affaires_annee_precedente;
+
+    // Affichage des ratios d'analyse financière
+    cout << "Ratio de liquidité : " << ratio_liquidite << endl;
+    cout << "Ratio d'endettement : " << ratio_endettement << endl;
+    cout << "Ratio de rentabilité : " << ratio_rentabilite << endl;
+    cout << "Ratio de croissance : " << ratio_croissance << endl;
+
+    myfile.close(); // Fermer le fichier
+    return 0;
+}
+
